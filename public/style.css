@@ -82,3 +82,32 @@ textarea.input{
 .btn:hover{
     background-color: #34495e;
 }
+
+.task-list{
+    list-style: none;
+    padding: 0;
+    max-width: 600;
+    margin: auto;
+}
+
+.task-item{
+    background-color: #fff;
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border-left: 5px solid #4caf50;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+}
+
+.task-title{
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.task-description{
+    color: #666;
+    
+}
+
