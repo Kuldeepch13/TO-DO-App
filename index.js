@@ -27,7 +27,6 @@ app.get("/", async(req, res)=>{
     const db = await connection();
     const collection = db.collection(collectionName);
     const result =await collection.find().toArray();
-    console.log(result);
     res.render("list",{result});
 })
 
@@ -57,6 +56,19 @@ app.get("/delete/:_id", async(req, res)=>{
     const result = await collection.deleteOne({_id: new ObjectId(req.params._id)});
     if((await result).deletedCount>0){
         res.redirect("/");
+    }else{
+        res.send("Some Error")
+    }
+    
+})
+
+
+app.get("/update/:_id", async(req, res)=>{
+    const db = await connection();
+    const collection = db.collection(collectionName);
+    const result = await collection.findOne({_id: new ObjectId(req.params._id)});
+    if(result){
+        res.render("update",{result});
     }else{
         res.send("Some Error")
     }
