@@ -108,6 +108,23 @@ textarea.input{
 
 .task-description{
     color: #666;
-    
+}
+
+.delete-item{
+    margin-top: 10px;
+    padding: 6px 10px;
+    background-color: #ff4d4d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+
+}
+
+.delete-item:hover{
+    background-color:red;
+
 }
 
