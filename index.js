@@ -3,8 +3,12 @@ import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import path from "path";
-import { MongoClient, ObjectId } from "mongodb";
 import "dotenv/config";
+import {User, Todo, syncDB} from "./db.js";
+
+
+
+await syncDB();
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -16,14 +20,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Db connection
-const dbName = "node-project";
-const collectionName = "TO-DO";
-const url = "mongodb://localhost:27017";
-const client = new MongoClient(url);
-const connection = async () => {
-  const connect = await client.connect();
-  return await connect.db(dbName);
-};
+// const dbName = "node-project";
+// const collectionName = "TO-DO";
+// const url = "mongodb://localhost:27017";
+// const client = new MongoClient(url);
+// const connection = async () => {
+//   const connect = await client.connect();
+//   return await connect.db(dbName);
+// };
 
 // authenticate middleware
 const authMiddleware = (req, res, next) => {
@@ -44,13 +48,17 @@ app.get("/register", (req, res) => res.render("register"));
 
 //it will handle register
 app.post("/register", async (req, res) => {
-  const db = await connection();
-  const users = db.collection("users");
-  const existing = await users.findOne({ email: req.body.email });
+
+
+  // const db = await connection();
+  // const users = db.collection("users");
+
+
+  const existing = await User.findOne({ where:{email: req.body.email } });
   if (existing) return res.send("User already exists");
 
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  await users.insertOne({ email: req.body.email, password: hashedPassword });
+  await User.create({ email: req.body.email, password: hashedPassword });
   res.redirect("/login");
 });
 
@@ -59,15 +67,16 @@ app.get("/login", (req, res) => res.render("login"));
 
 //it will Handle login
 app.post("/login", async (req, res) => {
-  const db = await connection();
-  const users = db.collection("users");
-  const user = await users.findOne({ email: req.body.email });
+  // const db = await connection();
+  // const users = db.collection("users");
+
+  const user = await User.findOne({ where:{email: req.body.email} });
   if (!user) return res.send("! Invalid Credentials");
 
   const isMatch = await bcrypt.compare(req.body.password, user.password);
   if (!isMatch) return res.send("! Invalid Credentials");
 
-  const token = jwt.sign({ userId: user._id.toString(), email: user.email }, JWT_SECRET, {
+  const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
     expiresIn: "1d",
 });
   res.cookie("token", token, { httpOnly: true });
@@ -81,9 +90,9 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
-  const result = await collection.find({ userId: req.user.userId }).toArray();
+  // const db = await connection();
+  // const collection = db.collection(collectionName);
+  const result = await Todo.findAll({ where: {userId: req.user.userId} });
   res.render("list", { result });
 });
 
@@ -96,36 +105,33 @@ app.get("/update", authMiddleware, (req, res) => {
 });
 
 app.post("/add", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
-  const result = await collection.insertOne({...req.body, userId: req.user.userId});
-  if (result) {
-    res.redirect("/");
-  } else {
-    res.redirect("/add");
-  }
+  // const db = await connection();
+  // const collection = db.collection(collectionName);
+  await Todo.create({
+    title: req.body.title,
+    description: req.body.description,
+    userId: req.user.userId,
+  });
+  res.redirect("/add");
 });
 
-app.get("/delete/:_id", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
-  const result = await collection.deleteOne({
-    _id: new ObjectId(req.params._id),
-    userId: req.user.userId
-  });
-  if (result.deletedCount > 0) {
+
+//delete one todo
+app.get("/delete/:id", authMiddleware, async (req, res) => {
+  const deleted = await Todo.destroy({
+      where:{id: req.params.id, userId: req.user.userId}
+});
+  if (deleted) {
     res.redirect("/");
   } else {
     res.send("Some Error");
   }
 });
 
-app.get("/update/:_id", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
-  const result = await collection.findOne({
-    _id: new ObjectId(req.params._id),
-  });
+
+//show updated form
+app.get("/update/:id", authMiddleware, async (req, res) => {
+  const result = await Todo.findOne({ where:{id: req.params.id, userId: req.user.userId }});
   if (result) {
     res.render("update", { result });
   } else {
@@ -133,45 +139,36 @@ app.get("/update/:_id", authMiddleware, async (req, res) => {
   }
 });
 
-app.post("/update/:_id", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
-  const filter = { _id: new ObjectId(req.params._id), userId: req.user.userId };
-  const updateData = {
-    $set: { title: req.body.title, description: req.body.description },
-  };
-  const result = await collection.updateOne(filter, updateData);
-  if (result) {
-    res.redirect("/");
-  } else {
-    res.send("Some Error");
-  }
-});
-
-app.post("/multi-delete", authMiddleware, async (req, res) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
 
 
-  let selectedTask = undefined;
-  if (Array.isArray(req.body.selectedTask)) {
-    selectedTask = req.body.selectedTask.map((id) => new ObjectId(id));
-  } else {
-    selectedTask = [new ObjectId(req.body.selectedTask)];
-  }
-
-
-  const result = await collection.deleteMany({ _id: { $in: selectedTask }, userId: req.user.userId });
-
-  if (result) {
-    res.redirect("/");
-  } else {
-    res.send("Some Error");
-  }
-});
-
-app.post("/update", (req, res) => {
+//save the updated todo
+app.post("/update/:id", authMiddleware, async (req, res) => {
+  await Todo.update(
+    {title: req.body.title, description: req.body.description },
+    {where: {id: req.params.id, userId: req.user.userId}}
+  );
   res.redirect("/");
 });
+
+
+
+//multi delete
+app.post("/multi-delete", authMiddleware, async (req, res) => {
+  let selectedTask = undefined;
+  if (Array.isArray(req.body.selectedTask)) {
+    selectedTask = req.body.selectedTask;
+  } else {
+    selectedTask = [req.body.selectedTask];
+  }
+
+  await Todo.destroy({
+    where: {
+      id: selectedTask,
+      userId: req.user.userId
+    }
+  });
+res.redirect("/");
+});
+
 
 app.listen(3200);

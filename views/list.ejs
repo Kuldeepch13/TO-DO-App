@@ -34,15 +34,15 @@
                 class="task-checkbox"
                 type="checkbox"
                 name="selectedTask"
-                value="<%= result[task]._id %>"
+                value="<%= result[task].id %>"
               />
               <div class="task-content">
                 <div class="task-title"><%= result[task].title %></div>
                 <div class="task-description"><%= result[task].description %></div>
               </div>
               <div class="task-actions">
-                <a href="/update/<%= result[task]._id %>" class="btn-update">Edit</a>
-                <a href="/delete/<%= result[task]._id %>" class="btn-delete">Delete</a>
+                <a href="/update/<%= result[task].id %>" class="btn-update">Edit</a>
+                <a href="/delete/<%= result[task].id %>" class="btn-delete">Delete</a>
               </div>
             </li>
           <% } %>

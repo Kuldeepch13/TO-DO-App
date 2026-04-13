@@ -15,7 +15,7 @@
     <p class="page-subtitle">Make your changes below.</p>
 
     <div class="form-card">
-      <form action="/update/<%= result._id %>" method="post">
+      <form action="/update/<%= result.id %>" method="post">
         <div class="field">
           <label>Task title</label>
           <input type="text" name="title" value="<%= result.title %>" required/>
