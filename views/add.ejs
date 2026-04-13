@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Task</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Task</title>
+  <link rel="stylesheet" href="/style.css"/>
 </head>
 <body>
-    <%- include('navbar') %>
-    
+  <%- include('navbar') %>
 
-    <div class="container">
-        <h1>Add New Task</h1>
-        <form class="todo-form" action="/add" method="post">
-            <input class="input" type="text" placeholder="Enter Task Title" name="title">
-            <br>
-            <br>
-            <textarea class="input" name="description" id=""></textarea>
-            <br><br>
-            <button class="btn">Add New Task</button>
-        </form>
+  <div class="page-wrapper">
+    <p class="eyebrow">New task</p>
+    <h1 class="page-title">Add a <em>task</em></h1>
+    <p class="page-subtitle">What do you need to get done?</p>
+
+    <div class="form-card">
+      <form action="/add" method="post">
+        <div class="field">
+          <label>Task title</label>
+          <input type="text" name="title" placeholder="e.g. Buy groceries" required/>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea name="description" placeholder="Add more details..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Add task</button>
+      </form>
     </div>
+  </div>
 </body>
 </html>

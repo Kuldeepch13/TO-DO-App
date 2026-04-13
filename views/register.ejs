@@ -1,10 +1,47 @@
-<%- include('navbar') %>
-<div class="container mt-5">
-  <h2>Register</h2>
-  <form method="POST" action="/register">
-    <input type="email" name="email" placeholder="Email" required class="form-control mb-2"/>
-    <input type="password" name="password" placeholder="Password" required class="form-control mb-2"/>
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
-  <p class="mt-2">Have an account? <a href="/login">Login</a></p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f0; font-family: 'DM Sans', sans-serif; }
+    .card { background: #fff; border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 0.4rem; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: #1a1a1a; line-height: 1.2; margin-bottom: 0.3rem; }
+    h1 em { font-style: italic; color: #1D9E75; }
+    .subtitle { font-size: 14px; color: #777; margin-bottom: 2rem; }
+    .field { margin-bottom: 1.2rem; }
+    .field label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+    .field input { width: 100%; padding: 11px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: #1a1a1a; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+    .field input:focus { border-color: #1D9E75; box-shadow: 0 0 0 3px rgba(29,158,117,0.1); background: #fff; }
+    .hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+    .btn { width: 100%; padding: 12px; font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: #fff; background: #1D9E75; border: none; border-radius: 8px; cursor: pointer; margin-top: 0.5rem; transition: background 0.15s; }
+    .btn:hover { background: #0F6E56; }
+    .switch { text-align: center; font-size: 14px; color: #777; margin-top: 1.5rem; }
+    .switch a { color: #1D9E75; text-decoration: none; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="eyebrow">Get started</p>
+    <h1>Create your <em>account</em></h1>
+    <p class="subtitle">Free forever. No credit card needed.</p>
+    <form method="POST" action="/register">
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" name="email" placeholder="you@example.com" required/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Min. 8 characters" required/>
+        <p class="hint">Use a mix of letters, numbers and symbols.</p>
+      </div>
+      <button type="submit" class="btn">Create account</button>
+    </form>
+    <p class="switch">Already have one? <a href="/login">Sign in</a></p>
+  </div>
+</body>
+</html>

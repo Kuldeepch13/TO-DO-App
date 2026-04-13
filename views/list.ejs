@@ -1,37 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task List</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Tasks</title>
+  <link rel="stylesheet" href="/style.css"/>
 </head>
 <body>
-    <%- include('navbar') %>
+  <%- include('navbar') %>
 
-    <div class="container">
-        <h1>Task List Page</h1>
-        <form action="/multi-delete" method="post">
-            <button class="delete-item" style="margin-bottom: 15px;">Delete Selected Tasks</button>
-        <ul class="task-list">
-            <% for(let task =0; task<result.length; task++) { %>
-                <li class="task-item">
-                    <div class="task-title">
-                        <%= result[task].title %>
-                    </div>
-
-                    <div class="task-description">
-                        <%= result[task].description %>
-                    </div>
-                    <input type="checkbox" name="selectedTask" value="<%= result[task]._id %>" id="">
-                    <a href="/delete/<%= result[task]._id %>" class="delete-item">Delete</a>
-                    <a href="/update/<%= result[task]._id %>" class="update-item">Update</a>
-                </li>
-                <% } %>
-        </ul>
-        </form>
+  <div class="page-wrapper">
+    <div class="list-header">
+      <div>
+        <p class="eyebrow">Your tasks</p>
+        <h1 class="page-title">Task <em>list</em></h1>
+      </div>
     </div>
 
-    
+    <% if (result.length === 0) { %>
+      <div class="empty-state">
+        <span>✓</span>
+        All clear! No tasks yet. <a href="/add" style="color:#1D9E75;text-decoration:none;font-weight:500;">Add one</a>
+      </div>
+    <% } else { %>
+      <form action="/multi-delete" method="post">
+        <div style="margin-bottom:1rem;">
+          <button type="submit" class="btn-delete-selected">Delete selected</button>
+        </div>
+        <ul class="task-list">
+          <% for(let task = 0; task < result.length; task++) { %>
+            <li class="task-item">
+              <input
+                class="task-checkbox"
+                type="checkbox"
+                name="selectedTask"
+                value="<%= result[task]._id %>"
+              />
+              <div class="task-content">
+                <div class="task-title"><%= result[task].title %></div>
+                <div class="task-description"><%= result[task].description %></div>
+              </div>
+              <div class="task-actions">
+                <a href="/update/<%= result[task]._id %>" class="btn-update">Edit</a>
+                <a href="/delete/<%= result[task]._id %>" class="btn-delete">Delete</a>
+              </div>
+            </li>
+          <% } %>
+        </ul>
+      </form>
+    <% } %>
+  </div>
 </body>
 </html>

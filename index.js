@@ -67,9 +67,9 @@ app.post("/login", async (req, res) => {
   const isMatch = await bcrypt.compare(req.body.password, user.password);
   if (!isMatch) return res.send("! Invalid Credentials");
 
-  const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, {
+  const token = jwt.sign({ userId: user._id.toString(), email: user.email }, JWT_SECRET, {
     expiresIn: "1d",
-  });
+});
   res.cookie("token", token, { httpOnly: true });
   res.redirect("/");
 });
@@ -83,7 +83,7 @@ app.get("/logout", (req, res) => {
 app.get("/", authMiddleware, async (req, res) => {
   const db = await connection();
   const collection = db.collection(collectionName);
-  const result = await collection.find().toArray();
+  const result = await collection.find({ userId: req.user.userId }).toArray();
   res.render("list", { result });
 });
 
@@ -98,7 +98,7 @@ app.get("/update", authMiddleware, (req, res) => {
 app.post("/add", authMiddleware, async (req, res) => {
   const db = await connection();
   const collection = db.collection(collectionName);
-  const result = await collection.insertOne(req.body);
+  const result = await collection.insertOne({...req.body, userId: req.user.userId});
   if (result) {
     res.redirect("/");
   } else {
@@ -111,8 +111,9 @@ app.get("/delete/:_id", authMiddleware, async (req, res) => {
   const collection = db.collection(collectionName);
   const result = await collection.deleteOne({
     _id: new ObjectId(req.params._id),
+    userId: req.user.userId
   });
-  if ((await result).deletedCount > 0) {
+  if (result.deletedCount > 0) {
     res.redirect("/");
   } else {
     res.send("Some Error");
@@ -135,7 +136,7 @@ app.get("/update/:_id", authMiddleware, async (req, res) => {
 app.post("/update/:_id", authMiddleware, async (req, res) => {
   const db = await connection();
   const collection = db.collection(collectionName);
-  const filter = { _id: new ObjectId(req.params._id) };
+  const filter = { _id: new ObjectId(req.params._id), userId: req.user.userId };
   const updateData = {
     $set: { title: req.body.title, description: req.body.description },
   };
@@ -150,7 +151,7 @@ app.post("/update/:_id", authMiddleware, async (req, res) => {
 app.post("/multi-delete", authMiddleware, async (req, res) => {
   const db = await connection();
   const collection = db.collection(collectionName);
-  console.log(req.body.selectedTask);
+
 
   let selectedTask = undefined;
   if (Array.isArray(req.body.selectedTask)) {
@@ -159,8 +160,8 @@ app.post("/multi-delete", authMiddleware, async (req, res) => {
     selectedTask = [new ObjectId(req.body.selectedTask)];
   }
 
-  console.log(selectedTask);
-  const result = await collection.deleteMany({ _id: { $in: selectedTask } });
+
+  const result = await collection.deleteMany({ _id: { $in: selectedTask }, userId: req.user.userId });
 
   if (result) {
     res.redirect("/");
